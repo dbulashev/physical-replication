@@ -35,7 +35,7 @@ To switch roles, that is, to make the `db02` service primary and the `db01` serv
 ---
 
 * `images/postgres` - building the image [dbulashev/postgres-replication](https://hub.docker.com/repository/docker/dbulashev/postgres-replication/general) for the stack
-* `db0[12]_replication_status.sh` - slot status and replication
+* `db0[12]_replication_status.sh` - status slot and replication
 * `exec_db0[12].sh` - script to run a command inside the db01, db02 services container
 * `exec_manage_db01.sh` - script to run a command inside the manage_db01 container
 * `logs_db0[12].sh` - logs for the db01, db02 services

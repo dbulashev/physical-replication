@@ -1,0 +1,1 @@
+show full_page_writes;

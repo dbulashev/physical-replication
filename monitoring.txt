@@ -1,0 +1,6 @@
+# TODO:
+full_page_writes
+data_checksums
+wal_log_hints
+pg_stat_replication
+pg_replication_slots

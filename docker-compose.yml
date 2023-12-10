@@ -1,0 +1,85 @@
+version: "3.8"
+services:
+  db01:
+    image: "${PG_IMAGE}"
+    hostname: db01
+    deploy:
+      placement:
+        constraints:
+          - node.labels.db-host-01 == true
+    environment:
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=ru-RU --data-checksums"
+      PGDATA: /pgdata
+      DB_ROLE: primary
+    tmpfs:
+      # @see images/postgres/scripts/init.sh
+      - /tmp:size="${SHARED_MEMORY}"
+    volumes:
+      - /docker-compose/pgdata-db01:/pgdata
+      - type: tmpfs
+        target: /dev/shm
+    ports:
+      - 6432:5432
+    networks:
+      - postgres
+
+  db02:
+    image: "${PG_IMAGE}"
+    hostname: db02
+    entrypoint: replica-entrypoint.sh postgres
+    deploy:
+      placement:
+        constraints:
+          - node.labels.db-host-02 == true
+    environment:
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=ru-RU --data-checksums"
+      PGDATA: /pgdata
+      DB_ROLE: secondary
+      PRIMARY_HOST: db01
+      # @see images/postgres/scripts/replica-entrypoint.sh
+      # @see images/postgres/scripts/init.sh
+      #REPLICA_SLOT: replica
+    tmpfs:
+      # @see images/postgres/scripts/init.sh
+      - /tmp:size="${SHARED_MEMORY}"
+    volumes:
+      - /docker-compose/pgdata-db02:/pgdata
+      - type: tmpfs
+        target: /dev/shm
+    ports:
+      - 6433:5432
+    depends_on:
+      - db01
+    networks:
+      - postgres
+
+  manage_db01:
+    image: "${PG_IMAGE}"
+    hostname: db01_manage
+    entrypoint: tail -f /dev/null
+    deploy:
+      replicas: 0
+      placement:
+        constraints:
+          - node.labels.db-host-01 == true
+    environment:
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      PGDATA: /pgdata
+    volumes:
+      - /docker-compose/pgdata-db01:/pgdata
+    networks:
+      - postgres
+    depends_on:
+      - db02
+
+
+networks:
+  postgres:
+    attachable: true
+    ipam:
+      driver: default
+      config:
+       # for pg_hba.conf @see images/postgres/scripts/init.sh
+       - subnet: 10.0.9.0/24

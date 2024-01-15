@@ -1,0 +1,77 @@
+version: "3.9"
+
+volumes:
+  metrics_data:
+  grafana_data:
+
+services:
+  grafana:
+    image: grafana/grafana:main
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "${GRAFANA_PASSWORD}"
+      GF_USERS_DEFAULT_THEME: light
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    ports: [ "3999:3000" ]
+    depends_on: [ vmagent ]
+    networks:
+      - monitoring
+      - pg-database_postgres
+
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:stable
+    volumes:
+      - metrics_data:/data
+    command: [ "-storageDataPath=/data", "-retentionPeriod=2d" ]
+#    ports:
+#      - 8428:8428
+    networks:
+      - monitoring
+
+  vmagent:
+    image: victoriametrics/vmagent:stable
+    volumes:
+      - ./victoriametrics/vmagent.yaml:/etc/vmagent.yaml
+    command: [ "-promscrape.config=/etc/vmagent.yaml", "-remoteWrite.url=http://victoriametrics:8428/api/v1/write" ]
+    depends_on: [ victoriametrics ]
+#    ports:
+#      - 8429:8429
+    networks:
+      - monitoring
+
+  pg_exporter_db01:
+    image: quay.io/prometheuscommunity/postgres-exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:${POSTGRES_PASSWORD}@db01:5432/postgres?sslmode=disable"
+    networks:
+      - pg-database_postgres
+      - monitoring
+    ports:
+      - 9187:9187
+
+  pgscv_db01:
+    image: lesovsky/pgscv:v0.8.0-beta.6
+#    ports:
+#      - 9890:9890
+    environment:
+      PGSCV_LISTEN_ADDRESS: 0.0.0.0:9890
+      PGSCV_DISABLE_COLLECTORS: system
+      DATABASE_DSN: "host=db01 dbname=postgres user=postgres password=${POSTGRES_PASSWORD}"
+    entrypoint: "sh -c 'until nc -w 2 -v db01 5432 < /dev/null; do echo Waiting 5s; sleep 5; done; /bin/pgscv'"
+    depends_on:
+      - db01
+    networks:
+      - pg-database_postgres
+      - monitoring
+
+networks:
+  monitoring:
+    ipam:
+      driver: default
+      config:
+       # for pg_hba.conf @see images/postgres/scripts/init.sh
+       - subnet: 10.0.9.64/26
+  pg-database_postgres:
+    external: true

@@ -1,4 +1,9 @@
-version: "3.8"
+version: "3.9"
+
+volumes:
+  metrics_data:
+  grafana_data:
+
 services:
   db01:
     image: "${PG_IMAGE}"
@@ -19,8 +24,13 @@ services:
       - /docker-compose/pgdata-db01:/pgdata
       - type: tmpfs
         target: /dev/shm
-    ports:
-      - 6432:5432
+#    ports:
+#      - 6432:5432
+    healthcheck:
+      test: [ "CMD-SHELL", "PGPASSWORD=${POSTGRES_PASSWORD} sh -c 'pg_isready -h localhost -U postgres'"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
     networks:
       - postgres
 
@@ -48,8 +58,8 @@ services:
       - /docker-compose/pgdata-db02:/pgdata
       - type: tmpfs
         target: /dev/shm
-    ports:
-      - 6433:5432
+#    ports:
+#      - 6433:5432
     depends_on:
       - db01
     networks:
@@ -71,15 +81,13 @@ services:
       - /docker-compose/pgdata-db01:/pgdata
     networks:
       - postgres
-    depends_on:
-      - db02
-
 
 networks:
+  monitoring:
   postgres:
     attachable: true
     ipam:
       driver: default
       config:
        # for pg_hba.conf @see images/postgres/scripts/init.sh
-       - subnet: 10.0.9.0/24
+       - subnet: 10.0.9.0/26

@@ -48,8 +48,8 @@ services:
     networks:
       - pg-database_postgres
       - monitoring
-    ports:
-      - 9187:9187
+#    ports:
+#      - 9187:9187
 
   pgscv_db01:
     image: lesovsky/pgscv:v0.8.0-beta.6

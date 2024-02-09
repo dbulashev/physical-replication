@@ -14,8 +14,10 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: "${GRAFANA_PASSWORD}"
       GF_USERS_DEFAULT_THEME: light
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
-    ports: [ "3999:3000" ]
-    depends_on: [ vmagent ]
+    ports:
+      - 3999:3000
+    depends_on:
+      - victoriametrics
     networks:
       - monitoring
       - pg-database_postgres
@@ -24,37 +26,82 @@ services:
     image: victoriametrics/victoria-metrics:stable
     volumes:
       - metrics_data:/data
-    command: [ "-storageDataPath=/data", "-retentionPeriod=2d" ]
-#    ports:
-#      - 8428:8428
+    command:
+      - "-storageDataPath=/data"
+      - "-retentionPeriod=2d"
+      - "--vmalert.proxyURL=http://vmalert:8880"
+    ports:
+      - 8428:8428
     networks:
       - monitoring
 
   vmagent:
     image: victoriametrics/vmagent:stable
     volumes:
-      - ./victoriametrics/vmagent.yaml:/etc/vmagent.yaml
+      - ./vmagent/vmagent.yaml:/etc/vmagent.yaml
     command: [ "-promscrape.config=/etc/vmagent.yaml", "-remoteWrite.url=http://victoriametrics:8428/api/v1/write" ]
     depends_on: [ victoriametrics ]
-#    ports:
-#      - 8429:8429
+    ports:
+      - 8429:8429
     networks:
       - monitoring
+
+  vmalert:
+    image: victoriametrics/vmalert:stable
+    ports:
+      - 8880:8880
+    depends_on:
+      - victoriametrics
+      - vmagent
+    volumes:
+      - ./vmalert:/etc/alerts
+    command:
+      - "--datasource.url=http://victoriametrics:8428/"
+      - "--remoteRead.url=http://victoriametrics:8428/"
+      - "--remoteWrite.url=http://victoriametrics:8428/"
+      - "--notifier.url=http://alertmanager:9093/"
+      - "--rule=/etc/alerts/*.yml"
+    networks:
+      - monitoring
+
+  alertmanager:
+    image: prom/alertmanager:v0.25.1
+    ports:
+      - 9093:9093
+    volumes:
+      - ./alertmanager/alertmanager.yml:/config/alertmanager.yml
+    command:
+      - "--config.file=/config/alertmanager.yml"
+    networks:
+      - monitoring
+
 
   pg_exporter_db01:
     image: quay.io/prometheuscommunity/postgres-exporter
     environment:
       DATA_SOURCE_NAME: "postgresql://postgres:${POSTGRES_PASSWORD}@db01:5432/postgres?sslmode=disable"
+    command: [ "--collector.postmaster" ]
     networks:
       - pg-database_postgres
       - monitoring
-#    ports:
-#      - 9187:9187
+    ports:
+      - 9187:9187
+
+  pg_exporter_db02:
+    image: quay.io/prometheuscommunity/postgres-exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:${POSTGRES_PASSWORD}@db02:5432/postgres?sslmode=disable"
+    command: [ "--collector.postmaster" ]
+    networks:
+      - pg-database_postgres
+      - monitoring
+    ports:
+      - 9287:9187
 
   pgscv_db01:
     image: lesovsky/pgscv:v0.8.0-beta.6
-#    ports:
-#      - 9890:9890
+    ports:
+      - 9890:9890
     environment:
       PGSCV_LISTEN_ADDRESS: 0.0.0.0:9890
       PGSCV_DISABLE_COLLECTORS: system
@@ -62,6 +109,21 @@ services:
     entrypoint: "sh -c 'until nc -w 2 -v db01 5432 < /dev/null; do echo Waiting 5s; sleep 5; done; /bin/pgscv'"
     depends_on:
       - db01
+    networks:
+      - pg-database_postgres
+      - monitoring
+
+  pgscv_db02:
+    image: lesovsky/pgscv:v0.8.0-beta.6
+    ports:
+      - 9990:9890
+    environment:
+      PGSCV_LISTEN_ADDRESS: 0.0.0.0:9890
+      PGSCV_DISABLE_COLLECTORS: system
+      DATABASE_DSN: "host=db02 dbname=postgres user=postgres password=${POSTGRES_PASSWORD}"
+    entrypoint: "sh -c 'until nc -w 2 -v db02 5432 < /dev/null; do echo Waiting 5s; sleep 5; done; /bin/pgscv'"
+    depends_on:
+      - db02
     networks:
       - pg-database_postgres
       - monitoring

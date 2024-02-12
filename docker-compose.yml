@@ -24,10 +24,8 @@ services:
       - /docker-compose/pgdata-db01:/pgdata
       - type: tmpfs
         target: /dev/shm
-#    ports:
-#      - 6432:5432
     healthcheck:
-      test: [ "CMD-SHELL", "PGPASSWORD=${POSTGRES_PASSWORD} sh -c 'pg_isready -h localhost -U postgres'"]
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U postgres'"]
       interval: 10s
       timeout: 10s
       retries: 10
@@ -58,10 +56,13 @@ services:
       - /docker-compose/pgdata-db02:/pgdata
       - type: tmpfs
         target: /dev/shm
-#    ports:
-#      - 6433:5432
     depends_on:
       - db01
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U postgres'"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
     networks:
       - postgres
 

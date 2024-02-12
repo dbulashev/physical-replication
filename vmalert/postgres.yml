@@ -1,0 +1,107 @@
+groups:
+
+- name: PostgresReplicationSettings
+  interval: 5m
+  rules:
+
+    - alert: DataChecksums_AND_WalLogHints_is_OFF
+      expr: 'pg_settings_data_checksums == 0 and on(instance) pg_settings_wal_log_hints == 0 and on (instance) (max by (instance) (pg_replication_slots_active)) == 1'
+      for: 0m
+      labels:
+        severity: warning
+      annotations:
+        summary: "param data_checksums or wal_log_hints must be set to 'ON'"
+
+    - alert: FullPageWrites_is_OFF
+      expr: 'pg_settings_full_page_writes == 0 and on (instance) (max by (instance) (pg_replication_slots_active)) == 1'
+      for: 0m
+      labels:
+        severity: warning
+      annotations:
+        summary: "param full_page_writes must be set to 'ON'"
+
+
+- name: Postgres
+  interval: 5m
+  rules:
+    - alert: LowHitRatio
+      expr: 'sum by (instance) (pg_stat_database_blks_hit) / (sum by (instance)(pg_stat_database_blks_hit + pg_stat_database_blks_read)) < 0.80'
+      for: 1d
+      labels:
+        severity: warning
+      annotations:
+        summary: "shared buffers hit ratio  is too low (VALUE = {{ $value }})"
+
+    - alert: AbsentReplicationInstance
+      expr: '(max by() (present_over_time(pg_replication_slots_active[10m])) * max by() (max_over_time(pg_replication_is_replica[10m]) == 0)) > 0'
+      for: 20m
+      labels:
+        severity: warning
+      annotations:
+        summary: "No one database is in replication mode, but have replication slot"
+
+
+    - alert: DatabaseConflicts
+      expr: 'sum by(instance) (increase(pg_stat_database_conflicts[1h])) > 0'
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Conflicts in the last hour (VALUE = {{ $value }})"
+
+    - alert: DatabaseDeadLocks
+      expr: 'sum by(instance) (increase(postgres_database_deadlocks_total[1h])) > 0'
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Deadlocks in the last hour (VALUE = {{ $value }})"
+
+    - alert: DatabaseChecksumFailures
+      expr: 'sum by(instance) (increase(postgres_database_checksum_failures_total[1h])) > 0'
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Checksum failures in the last hour (VALUE = {{ $value }})"
+
+    - alert: TooManyConnections
+      expr: 'sum by (instance, service_id) (postgres_activity_connections_in_flight) >  on(instance, service_id) 0.8 *  postgres_service_settings_info{name="max_connections"}'
+      for: 0m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Client connections above of 80% max_connections settings"
+
+    - alert: txLongTimeIdleInTransaction
+      expr: 'postgres_activity_max_seconds{state=~"(idlexact)"} / 60 > 2'
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Transaction has been idle for a long time ({{ $value }} minutes, database {{ $labels.database }})"
+
+    - alert: txLongTimeWaiting
+      expr: 'postgres_activity_max_seconds{state=~"(waiting)"} / 60 > 1'
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Transaction has been locked for a long time ({{ $value }} minutes, database {{ $labels.database }})"
+
+    - alert: SessionAbandonedOrFatalOrKilled
+      expr: 'sum by(instance, database) (increase(postgres_database_sessions_total{reason=~"abandoned|fatal|killed"}[30m])) > 0'
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Sessions ended poorly in the half last hour (total count {{ $value }}, database {{ $labels.database }})"
+
+    - alert: TableSizeIncreased
+      expr: 'delta(postgres_table_size_bytes[1h]) / 2^20 > 50 and delta(postgres_table_size_bytes[1h]) > 0.1 * postgres_table_size_bytes and postgres_table_size_bytes > 100 * 2^20'
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "The table {{ $labels.database }}.{{ $labels.table }} has grown by more than 10% and more than 50 megabytes in a hour (increase value {{ $value }} Mb)"
+

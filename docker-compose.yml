@@ -17,13 +17,13 @@ services:
       POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=ru-RU --data-checksums"
       PGDATA: /pgdata
       DB_ROLE: primary
-    tmpfs:
-      # @see images/postgres/scripts/init.sh
-      - /tmp:size="${SHARED_MEMORY}"
     volumes:
       - /docker-compose/pgdata-db01:/pgdata
+      # https://github.com/compose-spec/compose-spec/blob/master/05-services.md#long-syntax-5
       - type: tmpfs
         target: /dev/shm
+        tmpfs:
+          size: 1073741824 # 2^30 bytes = 1Gb
     healthcheck:
       test: [ "CMD-SHELL", "sh -c 'pg_isready -U postgres'"]
       interval: 10s
@@ -49,13 +49,12 @@ services:
       # @see images/postgres/scripts/replica-entrypoint.sh
       # @see images/postgres/scripts/init.sh
       #REPLICA_SLOT: replica
-    tmpfs:
-      # @see images/postgres/scripts/init.sh
-      - /tmp:size="${SHARED_MEMORY}"
     volumes:
       - /docker-compose/pgdata-db02:/pgdata
       - type: tmpfs
         target: /dev/shm
+        tmpfs:
+          size: 1073741824 # 2^30 bytes = 1Gb
     depends_on:
       - db01
     healthcheck:

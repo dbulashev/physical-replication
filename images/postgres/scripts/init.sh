@@ -24,7 +24,10 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
   alter system set track_io_timing to 'on';
   alter system set track_wal_io_timing to 'on';
   alter system set track_functions to 'all';
-  alter system set shared_preload_libraries to 'pg_stat_statements';
+  alter system set shared_preload_libraries to pg_stat_statements,pg_stat_kcache;
+  alter system set default_toast_compression to 'lz4';
+  alter system set full_page_writes to 'on';
+  alter system set wal_compression to 'lz4';
 EOSQL
 
 pg_ctl -D "$PGDATA" -m fast -w restart
@@ -33,9 +36,14 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
   alter system set pg_stat_statements.track to 'all';
   alter system set pg_stat_statements.track_utility to 'on';
   alter system set pg_stat_statements.track_planning to 'on';
+  create extension if not exists dblink;
   create extension if not exists pg_buffercache;
   create extension if not exists pgstattuple;
   create extension if not exists pg_stat_statements;
+  create extension if not exists pg_stat_kcache;
+  create schema profile;
+  create extension pg_profile schema profile;
+  alter database postgres set search_path to '"$user"', public, profile;
 EOSQL
 
 

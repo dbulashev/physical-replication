@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  cron_pg_profile_db01:
+    image: "${PG_IMAGE}"
+    hostname: cron
+    entrypoint: sh -euc '
+      /usr/sbin/rsyslogd -n &
+      /usr/sbin/cron -fL 15
+      '
+    deploy:
+      replicas: 1
+    configs:
+      - source: pg_profile_crontab
+        target: /etc/cron.d/pgprofile
+    networks:
+      - pg-database_postgres
+    secrets:
+      - source: pgpass
+        mode: 0600
+        target: /root/.pgpass
+
+networks:
+  pg-database_postgres:
+    external: true
+
+configs:
+  pg_profile_crontab:
+    file: ./cron/pg_profile
+
+secrets:
+  pgpass:
+    file: ./.pgpass
+

@@ -1,7 +1,7 @@
 version: "3.9"
 
 services:
-  cron_pg_profile_db01:
+  pg_profile_db01:
     image: "${PG_IMAGE}"
     hostname: cron
     entrypoint: sh -euc '

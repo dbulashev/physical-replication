@@ -42,7 +42,7 @@ services:
           - node.labels.db-host-02 == true
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
-      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=ru-RU --data-checksums"
+      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=${ICU_LOCALE} --data-checksums"
       PGDATA: /pgdata
       DB_ROLE: secondary
       PRIMARY_HOST: db01

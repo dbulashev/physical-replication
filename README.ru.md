@@ -3,28 +3,28 @@
 ## Стек баз данных
 
 ### [Образ PostgreSql](https://hub.docker.com/repository/docker/dbulashev/postgres-replication/general) основан на официальном образе [Postgres](https://hub.docker.com/_/postgres) с дополнениями:
-- Настройки для физической репликации.
-- Расширение [pg_stat_statements](https://www.postgresql.org/docs/current/pgstatstatements.html) (зависимость экспортера [pg_scv](https://github.com/lesovsky/pgscv))
-- Расширение [pg_buffercache](https://www.postgresql.org/docs/current/pgbuffercache.html) (зависимость экспортера pg_scv)
-- Расширение [pg_profile](https://github.com/zubkov-andrei/pg_profile)
-- Расширение [dblink](https://www.postgresql.org/docs/current/dblink.html) (зависимость расширения pg_profile)
-- Расширение [pgstattuple](https://www.postgresql.org/docs/current/pgstattuple.html) (зависимость расширения pg_csv)
-- Расширение [pg_stat_kcache](https://github.com/powa-team/pg_stat_kcache) (зависимость расширения pg_profile)
-- cron (для периодического сбора сэмплов расширением pg_profile, целей резервного копирования)
-- rsyslogd (для сбора логов от cron и экспорта в /dev/stdout контейнера)
+- Настройки для физической репликации;
+- Расширение [pg_stat_statements](https://www.postgresql.org/docs/current/pgstatstatements.html) (зависимость экспортера [pg_scv](https://github.com/lesovsky/pgscv));
+- Расширение [pg_buffercache](https://www.postgresql.org/docs/current/pgbuffercache.html) (зависимость экспортера pg_scv);
+- Расширение [pg_profile](https://github.com/zubkov-andrei/pg_profile);
+- Расширение [dblink](https://www.postgresql.org/docs/current/dblink.html) (зависимость расширения pg_profile);
+- Расширение [pgstattuple](https://www.postgresql.org/docs/current/pgstattuple.html) (зависимость расширения pg_csv);
+- Расширение [pg_stat_kcache](https://github.com/powa-team/pg_stat_kcache) (зависимость расширения pg_profile);
+- cron (для периодического сбора сэмплов расширением pg_profile, целей резервного копирования);
+- rsyslogd (для сбора логов от cron и экспорта в /dev/stdout контейнера).
 
 Переменные окружения образа:
 
-- `DB_ROLE` может принимать значения `primary` или `secondary`
-- `PRIMARY_HOST` указывает имя сервиса с ролью `primary`
-- `REPLICA_SLOT` имя слота репликации, по умолчанию `replica`
+- `DB_ROLE` может принимать значения `primary` или `secondary`;
+- `PRIMARY_HOST` указывает имя сервиса с ролью `primary`;
+- `REPLICA_SLOT` имя слота репликации, по умолчанию `replica`;
 - остальные переменные, от базового образа описаны в [документации](https://github.com/docker-library/docs/blob/master/postgres/README.md#environment-variables)
 
 Скрипты для обслуживания стека:
-- `db0[12]_replication_status.sh` - статус слотов и репликации
-- `exec_db0[12].sh` - запуск команды в контейнере сервисов `db01`, `db02`
-- `exec_manage_db01.sh` - запуск команды в контейнере `manage_db01`
-- `logs_db0[12].sh` - логи сервисов `db01`, `db02`
+- `db0[12]_replication_status.sh` - статус слотов и репликации;
+- `exec_db0[12].sh` - запуск команды в контейнере сервисов `db01`, `db02`;
+- `exec_manage_db01.sh` - запуск команды в контейнере `manage_db01`;
+- `logs_db0[12].sh` - логи сервисов `db01`, `db02`.
 
 Сборка образа:
 
@@ -72,9 +72,9 @@
 - агент pg_exporter.  
 
 **Алерты:**
-- [Awesome Prometheus alerts / postgres-exporter](https://raw.githubusercontent.com/samber/awesome-prometheus-alerts/master/dist/rules/postgresql/postgres-exporter.yml)
+- [Awesome Prometheus alerts / postgres-exporter](https://raw.githubusercontent.com/samber/awesome-prometheus-alerts/master/dist/rules/postgresql/postgres-exporter.yml);
 - комплект от VictoriaMetrics ([alerts-vmagent](https://github.com/VictoriaMetrics/VictoriaMetrics/blob/master/deployment/docker/alerts-vmagent.yml), [alerts-vmalert](https://github.com/VictoriaMetrics/VictoriaMetrics/blob/master/deployment/docker/alerts-vmalert.yml), [alerts-vmhealth](https://github.com/VictoriaMetrics/VictoriaMetrics/blob/master/deployment/docker/alerts-health.yml), [alerts-vmsingle](https://github.com/VictoriaMetrics/VictoriaMetrics/blob/master/deployment/docker/alerts.yml));
-- Другие алерты, основанные на метриках postgres-exporter и книги [Лесовский А. В. Мониторинг PostgreSQL](https://postgrespro.ru/education/books/monitoring)
+- Другие алерты, основанные на метриках postgres-exporter и книги [Лесовский А. В. Мониторинг PostgreSQL](https://postgrespro.ru/education/books/monitoring).
 
 **Дашборды:**
 - Дерево блокировок на основе запроса [postgres.ai Lock tree](https://postgres.ai/blog/20211018-postgresql-lock-trees);

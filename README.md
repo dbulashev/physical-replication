@@ -11,21 +11,21 @@ Read this in [Russian language](README.ru.md)
 - Extension [pg_profile](https://github.com/zubkov-andrei/pg_profile)
 - Extension [dblink](https://www.postgresql.org/docs/current/dblink.html) (dependency of the extension pg_profile)
 - Extension [pgstattuple](https://www.postgresql.org/docs/current/pgstattuple.html) (dependency of the extension pg_csv)
-- Extension [pg_stat_kcache (https://github.com/powa-team/pg_stat_kcache) (dependency of the extension pg_profile)
+- Extension [pg_stat_kcache](https://github.com/powa-team/pg_stat_kcache) (dependency of the extension pg_profile)
 - cron (for periodic sampling by the pg_profile extension, backup target purposes)
 - rsyslogd (for collecting logs from cron and exporting to /dev/stdout in the container)
 
 Environment variables of the image:
 
-- `DB_ROLE` can take values primary or secondary
-- `PRIMARY_HOST` specifies the service name with the primary role
-- `REPLICA_SLOT` the name of the replication slot, default replica
+- `DB_ROLE` can take values primary or secondary;
+- `PRIMARY_HOST` specifies the service name with the primary role;
+- `REPLICA_SLOT` the name of the replication slot, default replica;
 - other variables, from the base image, are described in the [documentation](https://github.com/docker-library/docs/blob/master/postgres/README.md#environment-variables).
 
 Scripts for managing the stack:
 - `db0[12]_replication_status.sh` - status of slots and replication;
 - `exec_db0[12].sh` - executing a command in the container of services `db01`, `db02`;
-- `exec_manage_db01.sh` - executing a command in the `manage_db01` container
+- `exec_manage_db01.sh` - executing a command in the `manage_db01` container;
 - `logs_db0[12].sh` - logs of services `db01`, `db02`.
 
 Building the image:

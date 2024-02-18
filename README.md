@@ -84,7 +84,7 @@ Alerts:
 Dashboards:
 - Lock tree based on the query [postgres.ai Lock tree](https://postgres.ai/blog/20211018-postgresql-lock-trees);
 - [Consolidated report](https://github.com/dataegret/pg-utils/blob/master/sql/global_reports/query_stat_total_13.sql) by Data Erget based on pg_stat_statements;
-- Using pgSCV metrics based on [pgSCV: PostgreSQL (https://grafana.com/grafana/dashboards/14540-pgscv-postgresql/), [postgresql-monitoring-book/unofficial/dashboards](https://github.com/lesovsky/postgresql-monitoring-book/blob/main/playground/grafana/provisioning/dashboards/unofficial/pgSCV.json);
+- Using pgSCV metrics based on [pgSCV: PostgreSQL](https://grafana.com/grafana/dashboards/14540-pgscv-postgresql/), [postgresql-monitoring-book/unofficial/dashboards](https://github.com/lesovsky/postgresql-monitoring-book/blob/main/playground/grafana/provisioning/dashboards/unofficial/pgSCV.json);
 - [PostgreSQL Exporter](https://grafana.com/grafana/dashboards/12485-postgresql-exporter/);
 - pg_profile io/summary/visualization/waits [dashboards v4.3](https://github.com/zubkov-andrei/pg_profile/releases);
 - [VictoriaMetrics - vmalert](https://grafana.com/grafana/dashboards/14950-victoriametrics-vmalert/);

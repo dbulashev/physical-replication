@@ -1,4 +1,4 @@
-# Docker Swarm Stack for Physical Replication of PostgreSQL
+# Docker Swarm Stack for Physical Replication of PostgreSQL and monitoring
 
 Read this in [Russian language](README.ru.md)
 
@@ -17,9 +17,9 @@ Read this in [Russian language](README.ru.md)
 
 Environment variables of the image:
 
-- `DB_ROLE` can take values primary or secondary;
+- `DB_ROLE` can take values `primary` or `secondary`;
 - `PRIMARY_HOST` specifies the service name with the primary role;
-- `REPLICA_SLOT` the name of the replication slot, default replica;
+- `REPLICA_SLOT` the name of the replication slot, default `replica`;
 - other variables, from the base image, are described in the [documentation](https://github.com/docker-library/docs/blob/master/postgres/README.md#environment-variables).
 
 Scripts for managing the stack:
@@ -43,11 +43,9 @@ Assign labels `db-host-01` and `db-host-02` on different nodes:
     docker node update --label-add db-host-01=true NODE_1
     docker node update --label-add db-host-02=true NODE_2
 
-
 On the node labeled `db-host-01` create the `pgdata-db01` directory:
 
     mkdir /docker-compose/pgdata-db01
-
 
 On the node labeled `db-host-02` create the `pgdata-db02` directory:
 

@@ -5,15 +5,15 @@ Read this in [Russian language](README.ru.md)
 ## Database Stack
 
 ### [The PostgreSql image](https://hub.docker.com/repository/docker/dbulashev/postgres-replication/general) is based on the official [Postgres](https://hub.docker.com/_/postgres) image with the following additions:
-- Configurations for physical replication.
-- Extension [pg_stat_statements](https://www.postgresql.org/docs/current/pgstatstatements.html) (dependency of exporter [pg_scv](https://github.com/lesovsky/pgscv))
-- Extension [pg_buffercache](https://www.postgresql.org/docs/current/pgbuffercache.html) (dependency of exporter pg_scv)
-- Extension [pg_profile](https://github.com/zubkov-andrei/pg_profile)
-- Extension [dblink](https://www.postgresql.org/docs/current/dblink.html) (dependency of the extension pg_profile)
-- Extension [pgstattuple](https://www.postgresql.org/docs/current/pgstattuple.html) (dependency of the extension pg_csv)
-- Extension [pg_stat_kcache](https://github.com/powa-team/pg_stat_kcache) (dependency of the extension pg_profile)
-- cron (for periodic sampling by the pg_profile extension, backup target purposes)
-- rsyslogd (for collecting logs from cron and exporting to /dev/stdout in the container)
+- Configurations for physical replication;
+- Extension [pg_stat_statements](https://www.postgresql.org/docs/current/pgstatstatements.html) (dependency of exporter [pg_scv](https://github.com/lesovsky/pgscv));
+- Extension [pg_buffercache](https://www.postgresql.org/docs/current/pgbuffercache.html) (dependency of exporter pg_scv);
+- Extension [pg_profile](https://github.com/zubkov-andrei/pg_profile);
+- Extension [dblink](https://www.postgresql.org/docs/current/dblink.html) (dependency of the extension pg_profile);
+- Extension [pgstattuple](https://www.postgresql.org/docs/current/pgstattuple.html) (dependency of the extension pg_csv);
+- Extension [pg_stat_kcache](https://github.com/powa-team/pg_stat_kcache) (dependency of the extension pg_profile);
+- cron (for periodic sampling by the pg_profile extension, backup target purposes);
+- rsyslogd (for collecting logs from cron and exporting to /dev/stdout in the container).
 
 Environment variables of the image:
 

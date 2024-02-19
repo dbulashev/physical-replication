@@ -2,7 +2,7 @@
 
 ## Стек баз данных
 
-### [Образ PostgreSql](https://hub.docker.com/repository/docker/dbulashev/postgres-replication/general) основан на официальном образе [Postgres](https://hub.docker.com/_/postgres) с дополнениями:
+### [Образ PostgreSql](https://hub.docker.com/r/dbulashev/postgres-replication) основан на официальном образе [Postgres](https://hub.docker.com/_/postgres) с дополнениями:
 - Настройки для физической репликации;
 - Расширение [pg_stat_statements](https://www.postgresql.org/docs/current/pgstatstatements.html) (зависимость экспортера [pg_scv](https://github.com/lesovsky/pgscv));
 - Расширение [pg_buffercache](https://www.postgresql.org/docs/current/pgbuffercache.html) (зависимость экспортера pg_scv);

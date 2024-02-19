@@ -4,7 +4,7 @@ Read this in [Russian language](README.ru.md)
 
 ## Database Stack
 
-### [The PostgreSql image](https://hub.docker.com/repository/docker/dbulashev/postgres-replication/general) is based on the official [Postgres](https://hub.docker.com/_/postgres) image with the following additions:
+### [The PostgreSql image](https://hub.docker.com/r/dbulashev/postgres-replication) is based on the official [Postgres](https://hub.docker.com/_/postgres) image with the following additions:
 - Configurations for physical replication;
 - Extension [pg_stat_statements](https://www.postgresql.org/docs/current/pgstatstatements.html) (dependency of exporter [pg_scv](https://github.com/lesovsky/pgscv));
 - Extension [pg_buffercache](https://www.postgresql.org/docs/current/pgbuffercache.html) (dependency of exporter pg_scv);

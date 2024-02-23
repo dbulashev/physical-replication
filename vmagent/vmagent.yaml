@@ -7,14 +7,12 @@ scrape_configs:
     static_configs:
       - targets:
         - pg_exporter_db01:9187
-        - pg_exporter_db02:9187
 
   - job_name: postgres_pgscv
 
     static_configs:
       - targets:
         - pgscv_db01:9890
-        - pgscv_db02:9890
 
     #metric_relabel_debug: true
     metric_relabel_configs:
